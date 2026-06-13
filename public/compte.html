@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon compte — Coupe à la maison</title>
+  <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/compte.css" />
+</head>
+<body>
+
+  <div class="bg-mesh">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+  <div class="grain"></div>
+
+  <header class="nav">
+    <a href="/" class="brand">
+      <span class="brand-ball">⚽</span>
+      <span class="brand-text">Coupe<em>à la</em>maison</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/">Accueil</a>
+      <a href="/competition#poules">Poules</a>
+      <a href="/competition#calendrier">Calendrier</a>
+      <a href="/equipes">Équipes</a>
+      <a href="/paris" class="nav-cta">PARIER</a>
+      <a href="/palmares">Palmarès</a>
+      <a href="/stats">Stats</a>
+      <a href="/tv">Où regarder</a>
+
+      <button id="theme-toggle" class="btn-icon" aria-label="Changer de thème">☀️</button>
+    </nav>
+  </header>
+
+  <main class="auth">
+    <div class="auth-card">
+      <div class="tabs auth-tabs">
+        <button class="tab is-active" data-auth="login">Connexion</button>
+        <button class="tab" data-auth="register">Inscription</button>
+      </div>
+
+      <!-- Connexion -->
+      <div class="auth-panel is-active" id="panel-login">
+        <h1 class="auth-title">Content de te revoir</h1>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="login-email" autocomplete="email" placeholder="ton@email.com" />
+        </label>
+        <label class="field">
+          <span>Mot de passe</span>
+          <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" />
+        </label>
+        <p class="auth-msg" id="login-msg"></p>
+        <button class="btn btn-solid btn-block" id="login-btn">Se connecter</button>
+        <p class="auth-forgot"><a href="#" id="forgot-link">Mot de passe oublié ?</a></p>
+        <p class="auth-forgot-note" id="forgot-note" hidden>
+          Pas de panique 🙂 Demande à <strong>l'organisateur</strong> de réinitialiser
+          ton mot de passe. Il te donnera un mot de passe temporaire pour te reconnecter.
+        </p>
+      </div>
+
+      <!-- Inscription -->
+      <div class="auth-panel" id="panel-register">
+        <h1 class="auth-title">Crée ton compte</h1>
+        <label class="field">
+          <span>Pseudo</span>
+          <input type="text" id="reg-pseudo" autocomplete="nickname" placeholder="Ton pseudo" maxlength="20" />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="reg-email" autocomplete="email" placeholder="ton@email.com" />
+        </label>
+        <label class="field">
+          <span>Mot de passe</span>
+          <input type="password" id="reg-password" autocomplete="new-password" placeholder="Au moins 8 caractères" />
+        </label>
+        <p class="auth-hint">Le mot de passe doit faire au moins 8 caractères.</p>
+        <p class="auth-msg" id="reg-msg"></p>
+        <button class="btn btn-solid btn-block" id="reg-btn">Créer mon compte</button>
+      </div>
+
+      <!-- Déjà connecté (compte normal) -->
+      <div class="auth-panel" id="panel-connected">
+        <h1 class="auth-title">Tu es connecté</h1>
+        <p class="auth-hint" id="connected-who"></p>
+        <a href="/" class="btn btn-solid btn-block">Aller à l'accueil</a>
+        <p class="auth-forgot"><a href="#" id="logout-link">Se déconnecter</a></p>
+      </div>
+
+      <!-- Espace organisateur (admin) -->
+      <div class="auth-panel" id="panel-admin">
+        <h1 class="auth-title">Espace organisateur</h1>
+        <p class="auth-hint">Réinitialise le mot de passe d'un participant. Tape un mot de passe de ton choix, ou laisse le champ vide pour en générer un automatiquement.</p>
+        <label class="field">
+          <span>Participant</span>
+          <select id="admin-user" class="admin-select"></select>
+        </label>
+        <label class="field">
+          <span>Nouveau mot de passe (optionnel)</span>
+          <input type="text" id="admin-newpwd" autocomplete="off" placeholder="Laisse vide pour en générer un" />
+        </label>
+        <p class="auth-hint">S'il est rempli : minimum 8 caractères.</p>
+        <p class="auth-msg" id="admin-msg"></p>
+        <div class="reset-result" id="reset-result" hidden>
+          <span class="rr-label" id="reset-label">Mot de passe temporaire</span>
+          <span class="rr-pwd" id="reset-pwd"></span>
+          <span class="rr-hint">Copie-le et donne-le à la personne. Il faudra l'utiliser pour se reconnecter.</span>
+        </div>
+        <button class="btn btn-solid btn-block" id="admin-reset-btn">Réinitialiser le mot de passe</button>
+        <p class="auth-forgot"><a href="/" >← Retour à l'accueil</a> · <a href="#" id="logout-link2">Se déconnecter</a></p>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/compte.js"></script>
+</body>
+</html>

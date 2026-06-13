@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palmarès — Coupe à la maison</title>
+  <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/competition.css" />
+  <link rel="stylesheet" href="/css/equipes.css" />
+</head>
+<body>
+  <div class="bg-mesh"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+  <div class="grain"></div>
+
+  <header class="nav">
+    <a href="/" class="brand"><span class="brand-ball">⚽</span><span class="brand-text">Coupe<em>à la</em>maison</span></a>
+    <nav class="nav-links">
+      <a href="/">Accueil</a>
+      <a href="/competition#poules">Poules</a>
+      <a href="/competition#calendrier">Calendrier</a>
+      <a href="/equipes">Équipes</a>
+      <a href="/paris" class="nav-cta">PARIER</a>
+      <a href="/palmares" class="active" aria-current="page">Palmarès</a>
+      <a href="/stats">Stats</a>
+      <a href="/tv">Où regarder</a>
+
+      <button id="theme-toggle" class="btn-icon" aria-label="Changer de thème">☀️</button>
+      <a href="/compte" class="btn btn-ghost">Connexion</a>
+      <a href="/compte#register" class="btn btn-solid">S'inscrire</a>
+    </nav>
+  </header>
+
+  <main class="comp">
+    <section class="comp-head">
+      <p class="hero-kicker">Classement général</p>
+      <h1 class="comp-title">Palmarès</h1>
+      <p class="comp-sub">Les meilleurs parieurs de la maison. Bon résultat = 1 pt · Score exact = 3 pts.</p>
+    </section>
+
+    <div id="lb-state" class="state">Chargement du classement…</div>
+    <div id="leaderboard"></div>
+  </main>
+
+  <footer class="foot"><span>Coupe à la maison · projet entre amis</span><span class="foot-v">v0.7 — palmarès</span></footer>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/palmares.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

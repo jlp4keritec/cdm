@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Coupe à la maison — Mondial 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/home-news.css" />
+  <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body>
+
+  <!-- Fond animé (halos de couleur qui bougent) -->
+  <div class="bg-mesh">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+  <div class="grain"></div>
+
+  <!-- Barre de navigation -->
+  <header class="nav">
+    <a href="/" class="brand">
+      <span class="brand-ball">⚽</span>
+      <span class="brand-text">La Coupe<em>à la</em>maison</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/" class="active" aria-current="page">Accueil</a>
+      <a href="/competition#poules">Poules</a>
+      <a href="/competition#calendrier">Calendrier</a>
+      <a href="/equipes">Équipes</a>
+      <a href="/paris" class="nav-cta">PARIER</a>
+      <a href="/palmares">Palmarès</a>
+      <a href="/stats">Stats</a>
+      <a href="/tv">Où regarder</a>
+
+      <button id="theme-toggle" class="btn-icon" aria-label="Changer de thème">☀️</button>
+      <a href="/compte" class="btn btn-ghost">Connexion</a>
+      <a href="/compte#register" class="btn btn-solid">S'inscrire</a>
+    </nav>
+  </header>
+
+  <!-- Section principale (hero) -->
+  <main>
+    <section class="hero">
+      <p class="hero-kicker reveal">USA · Canada · Mexique — Été 2026</p>
+      <h1 class="hero-title">
+        <span class="line reveal">Pronostique.</span>
+        <span class="line reveal">Marque des points.</span>
+        <span class="line reveal accent">Deviens champion.</span>
+      </h1>
+      <p class="hero-sub reveal">
+        Le jeu de paris entre amis pour vivre la Coupe du Monde 2026.
+        Suis les poules, parie sur les matchs, grimpe au classement.
+      </p>
+      <div class="hero-actions reveal" id="hero-actions">
+        <a href="/compte#register" class="btn btn-big btn-solid">Créer mon compte</a>
+        <a href="/competition" class="btn btn-big btn-ghost">Voir la compétition</a>
+      </div>
+
+      <!-- Compte à rebours -->
+      <div class="countdown reveal" id="countdown" aria-label="Compte à rebours avant le coup d'envoi">
+        <div class="cd-item"><span class="cd-num" data-d>--</span><span class="cd-lab">jours</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-item"><span class="cd-num" data-h>--</span><span class="cd-lab">heures</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-item"><span class="cd-num" data-m>--</span><span class="cd-lab">min</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-item"><span class="cd-num" data-s>--</span><span class="cd-lab">sec</span></div>
+      </div>
+      <p class="countdown-cap reveal" id="countdown-cap">avant le prochain match</p>
+    </section>
+
+    <!-- Nouveautés (Lot 1) -->
+    <section class="news reveal" aria-label="Nouveautés">
+      <h2 class="news-title">Quoi de neuf ?</h2>
+      <div class="news-grid">
+        <a class="news-card" href="/palmares">
+          <span class="news-ico">🎯</span>
+          <h3>Badge « pari exact »</h3>
+          <p>Une cible s'affiche pour chaque score deviné pile-poil.</p>
+        </a>
+        <a class="news-card" href="/paris">
+          <span class="news-ico">⏳</span>
+          <h3>Compte à rebours</h3>
+          <p>Vois en direct le temps qu'il te reste pour parier sur un match.</p>
+        </a>
+        <a class="news-card" href="/palmares">
+          <span class="news-ico">↕️</span>
+          <h3>Classement vivant</h3>
+          <p>Des flèches montrent qui grimpe et qui dégringole.</p>
+        </a>
+        <a class="news-card" href="/paris">
+          <span class="news-ico">▶️</span>
+          <h3>Résumés vidéo</h3>
+          <p>Revois chaque match terminé en un clic, sur les paris passés.</p>
+        </a>
+        <a class="news-card" href="/stats">
+          <span class="news-ico">📊</span>
+          <h3>Stats fun</h3>
+          <p>Sniper, voyant, flambeur… découvre les petits titres de la maison.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Bandeau défilant des villes hôtes -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>New York</span><span>•</span><span>Los Angeles</span><span>•</span>
+        <span>Mexico</span><span>•</span><span>Toronto</span><span>•</span>
+        <span>Dallas</span><span>•</span><span>Miami</span><span>•</span>
+        <span>Vancouver</span><span>•</span><span>Guadalajara</span><span>•</span>
+        <span>Atlanta</span><span>•</span><span>Seattle</span><span>•</span>
+        <span>Boston</span><span>•</span><span>Houston</span><span>•</span>
+        <span>New York</span><span>•</span><span>Los Angeles</span><span>•</span>
+        <span>Mexico</span><span>•</span><span>Toronto</span><span>•</span>
+        <span>Dallas</span><span>•</span><span>Miami</span><span>•</span>
+      </div>
+    </div>
+
+    <!-- Trois cartes de présentation -->
+    <section class="cards">
+      <a class="card reveal" id="poules" href="/competition">
+        <span class="card-index">01</span>
+        <h2>Les poules &amp; les tours</h2>
+        <p>12 groupes, 48 équipes, puis les phases finales. Suis tout le tournoi en direct.</p>
+        <span class="card-tag card-tag-go">Voir &rarr;</span>
+      </a>
+      <a class="card reveal" id="paris" href="/paris">
+        <span class="card-index">02</span>
+        <h2>Tes paris</h2>
+        <p>Devine le vainqueur ou le score exact. Bon résultat = 1 point, score exact = 3 points.</p>
+        <span class="card-tag card-tag-go">Parier &rarr;</span>
+      </a>
+      <a class="card reveal" id="palmares" href="/palmares">
+        <span class="card-index">03</span>
+        <h2>Le palmarès</h2>
+        <p>Un classement en temps réel des meilleurs parieurs. À toi le sommet.</p>
+        <span class="card-tag card-tag-go">Voir &rarr;</span>
+      </a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Coupe à la maison · projet entre amis</span>
+    <span class="foot-v">v0.6 — accueil</span>
+  </footer>
+
+  <!-- Petit message quand on clique sur un bouton pas encore prêt -->
+  <div class="toast" id="toast">Cette partie arrive à la prochaine étape 😉</div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon tableau de bord — Coupe à la maison</title>
+  <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/competition.css" />
+  <link rel="stylesheet" href="/css/paris.css" />
+</head>
+<body>
+  <div class="bg-mesh"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+  <div class="grain"></div>
+
+  <header class="nav">
+    <a href="/" class="brand"><span class="brand-ball">⚽</span><span class="brand-text">Coupe<em>à la</em>maison</span></a>
+    <nav class="nav-links">
+      <a href="/">Accueil</a>
+      <a href="/competition">Compétition</a>
+      <a href="/equipes">Équipes</a>
+      <a href="/paris" class="nav-cta">PARIER</a>
+      <a href="/palmares">Palmarès</a>
+      <a href="/stats">Stats</a>
+      <a href="/tv">Où regarder</a>
+      <button id="theme-toggle" class="btn-icon" aria-label="Changer de thème">☀️</button>
+      <a href="/compte" class="btn btn-ghost">Connexion</a>
+      <a href="/compte#register" class="btn btn-solid">S'inscrire</a>
+    </nav>
+  </header>
+
+  <main class="comp">
+    <section class="comp-head">
+      <p class="hero-kicker">Mon espace</p>
+      <h1 class="comp-title" id="dash-hello">Mon tableau de bord</h1>
+      <p class="comp-sub">Tes points et tes statistiques de parieur.</p>
+    </section>
+
+    <div class="state" id="need-login" hidden>
+      Connecte-toi pour voir ton tableau de bord.
+      <div style="margin-top:16px;">
+        <a href="/compte" class="btn btn-solid">Se connecter</a>
+        <a href="/compte#register" class="btn btn-ghost">Créer un compte</a>
+      </div>
+    </div>
+
+    <div class="state" id="dash-state">Chargement…</div>
+
+    <div id="dash" hidden>
+      <p class="dash-badge" id="dash-badge" hidden></p>
+      <div class="dash-grid">
+        <div class="dash-card hero">
+          <div class="dash-num" id="d-points">0</div>
+          <div class="dash-lab">points au total</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-num" id="d-rank">–</div>
+          <div class="dash-lab" id="d-rank-lab">classement</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-num" id="d-placed">0</div>
+          <div class="dash-lab">pronos faits</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-num" id="d-exact"><span class="bull-target">🎯</span> 0</div>
+          <div class="dash-lab">scores exacts (3 pts)</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-num" id="d-correct">0</div>
+          <div class="dash-lab">bons résultats (1 pt)</div>
+        </div>
+      </div>
+      <div class="dash-actions">
+        <a href="/paris" class="btn btn-solid">Faire mes pronos</a>
+        <a href="/palmares" class="btn btn-ghost">Voir le palmarès</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot"><span>Coupe à la maison · projet entre amis</span><span class="foot-v">v0.7 — tableau de bord</span></footer>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/tableau.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

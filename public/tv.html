@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Où regarder — Coupe à la maison</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/competition.css" />
+  <link rel="stylesheet" href="/css/tv.css" />
+  <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+</head>
+<body>
+
+  <div class="bg-mesh">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+  <div class="grain"></div>
+
+  <header class="nav">
+    <a href="/" class="brand">
+      <span class="brand-ball">⚽</span>
+      <span class="brand-text">Coupe<em>à la</em>maison</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/">Accueil</a>
+      <a href="/competition#poules">Poules</a>
+      <a href="/competition#calendrier">Calendrier</a>
+      <a href="/equipes">Équipes</a>
+      <a href="/paris" class="nav-cta">PARIER</a>
+      <a href="/palmares">Palmarès</a>
+      <a href="/stats">Stats</a>
+      <a href="/tv" class="active" aria-current="page">Où regarder</a>
+
+      <button id="theme-toggle" class="btn-icon" aria-label="Changer de thème">☀️</button>
+      <a href="/compte" class="btn btn-ghost">Connexion</a>
+      <a href="/compte#register" class="btn btn-solid">S'inscrire</a>
+    </nav>
+  </header>
+
+  <main class="comp">
+    <section class="comp-head">
+      <p class="hero-kicker">Mondial 2026 · USA · Canada · Mexique</p>
+      <h1 class="comp-title">Où regarder</h1>
+      <p class="comp-sub">beIN Sports diffuse les 104 matchs. M6 et W9 en diffusent 54 gratuitement. <span class="tz-note">🕐 Horaires en heure française.</span></p>
+    </section>
+
+    <section class="tab-panel is-active">
+      <div class="subtabs">
+        <button class="subtab is-active" data-tv="m6">En clair · M6 / W9</button>
+        <button class="subtab" data-tv="bein">beIN Sports</button>
+      </div>
+
+      <div id="tv-state" class="state">Chargement du programme…</div>
+
+      <!-- Onglet En clair (M6 / W9) -->
+      <div id="tv-m6" class="match-view is-active">
+        <div class="tv-info">
+          Sont confirmés en clair : les 3 matchs de la France, les 2 demi-finales, la petite finale et la finale.
+          Le reste de la sélection M6 (autres affiches, 8es et quarts) sera ajouté après les tirages.
+        </div>
+        <div id="tv-free"></div>
+      </div>
+
+      <!-- Onglet beIN Sports -->
+      <div id="tv-bein-view" class="match-view">
+        <div class="tv-info">Les 104 matchs sont diffusés sur beIN Sports (sur abonnement).</div>
+        <div id="tv-bein"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Coupe à la maison · projet entre amis</span>
+    <span class="foot-v">v0.7 — où regarder</span>
+  </footer>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/tv.js"></script>
+  <script src="/js/teams-tooltip.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

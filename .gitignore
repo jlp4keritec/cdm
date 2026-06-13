@@ -1,0 +1,36 @@
+# ============================================================
+#  Coupe à la maison — fichiers à NE PAS publier sur GitHub
+# ============================================================
+
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+deploy-config.json
+
+# Données privées (comptes, paris, historique du classement)
+data/users.json
+data/bets.json
+data/standings-history.json
+
+# Dépendances et artefacts
+node_modules/
+npm-debug.log*
+*.log
+
+# Archives et sauvegardes
+*.zip
+*.tar.gz
+*.bak
+*-backup*/
+backup-*/
+
+# Fichiers système / éditeur
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Rapports d'audit du serveur (contiennent IP, ports, services)
+vps-audit-report.txt
+audit-vps.ps1
