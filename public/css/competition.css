@@ -288,3 +288,61 @@ tr.qualified .pos { background: rgba(198,255,61,0.18); color: var(--lime); }
   font-size: 0.62rem;
   letter-spacing: 0.5px;
 }
+
+/* ============================================================
+   Palmarès — dépliage des matchs gagnants (clic sur un parieur)
+   ============================================================ */
+.rank-block { margin-bottom: 8px; }
+.rank-block .rank-row { margin-bottom: 0; }
+
+/* Ligne cliquable */
+.rank-row.is-clickable { cursor: pointer; }
+.rank-caret {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.18s ease;
+}
+.rank-row.is-open .rank-caret { transform: rotate(180deg); color: var(--cyan); }
+
+/* Panneau dépliable */
+.rank-detail {
+  margin: 4px 0 2px;
+  padding: 6px 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.rank-detail[hidden] { display: none; }
+
+/* Une ligne « match gagnant » */
+.bd-row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.bd-row:last-child { border-bottom: none; }
+.bd-date { color: var(--muted); font-size: 0.8rem; text-transform: capitalize; }
+.bd-teams { color: var(--ink); }
+.bd-teams strong { font-family: 'Anton', sans-serif; letter-spacing: 0.5px; margin: 0 2px; }
+.bd-prono { color: var(--muted); font-size: 0.82rem; }
+.bd-pts {
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.bd-exact { color: #0e1530; background: var(--lime, #c6ff3d); }
+.bd-good  { color: var(--cyan); border: 1px solid var(--line); }
+
+@media (max-width: 560px) {
+  .bd-row { grid-template-columns: 1fr auto; row-gap: 2px; }
+  .bd-date { grid-column: 1 / -1; }
+  .bd-prono { grid-column: 1 / -1; }
+}

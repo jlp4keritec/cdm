@@ -12,6 +12,7 @@ const path = require('path');
 const football = require('./data/football');
 const users = require('./data/users');
 const bets = require('./data/bets');
+const prono = require('./data/pronostic');
 const history = require('./data/history');
 
 const app = express();
@@ -68,14 +69,41 @@ function isBettable(m) {
   return notStartedStatus && inFuture;
 }
 
+// Portefeuille d'un joueur : points déjà gagnés (matchs terminés)
+// MOINS les mises bloquées sur des matchs encore à venir (quitte ou double / joker).
+// C'est le maximum qu'il peut remettre en jeu.
+function availablePoints(userId, matchList) {
+  const byId = {};
+  (matchList || []).forEach((m) => { byId[m.id] = m; });
+  let resolved = 0, committed = 0;
+  bets.getUserBets(userId).forEach((b) => {
+    const m = byId[b.matchId];
+    const pts = m ? bets.gamePointsFor(b, m) : null;
+    if (pts != null) resolved += pts;                                   // match joué : points acquis
+    else if (b.mode === 'qod' || b.mode === 'joker') committed += (b.stake || 0); // mise bloquée
+  });
+  return resolved - committed;
+}
+
 app.post('/api/bets', requireAuth, async (req, res) => {
   const matchId = Number(req.body && req.body.matchId);
-  const home = parseInt(req.body && req.body.home, 10);
-  const away = parseInt(req.body && req.body.away, 10);
+  const mode = (req.body && req.body.mode) || 'normal';
 
   if (!Number.isInteger(matchId)) return res.status(400).json({ error: 'Match invalide.' });
-  if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0 || home > 30 || away > 30) {
-    return res.status(400).json({ error: 'Score invalide (entre 0 et 30).' });
+  if (mode !== 'normal' && mode !== 'qod' && mode !== 'joker') {
+    return res.status(400).json({ error: 'Mode de pari invalide.' });
+  }
+
+  // Score prédit : requis pour 'normal' et 'qod', optionnel pour 'joker'.
+  let home = parseInt(req.body && req.body.home, 10);
+  let away = parseInt(req.body && req.body.away, 10);
+  if (mode === 'joker') {
+    if (!Number.isInteger(home) || home < 0 || home > 30) home = 0;
+    if (!Number.isInteger(away) || away < 0 || away > 30) away = 0;
+  } else {
+    if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0 || home > 30 || away > 30) {
+      return res.status(400).json({ error: 'Score invalide (entre 0 et 30).' });
+    }
   }
 
   let matchList;
@@ -86,7 +114,24 @@ app.post('/api/bets', requireAuth, async (req, res) => {
   if (!m) return res.status(404).json({ error: 'Match introuvable.' });
   if (!isBettable(m)) return res.status(400).json({ error: 'Trop tard : le match a commencé (ou équipes inconnues).' });
 
-  bets.setBet(req.session.userId, matchId, home, away);
+  // Mise (quitte ou double / joker) : on ne peut miser que ses propres points.
+  let stake = 0;
+  if (mode === 'qod' || mode === 'joker') {
+    stake = (mode === 'joker') ? 2 : parseInt(req.body && req.body.stake, 10);
+    if (!Number.isInteger(stake) || stake < 1) {
+      return res.status(400).json({ error: 'Mise invalide.' });
+    }
+    // On rembourse la mise déjà posée sur CE match (cas d'une modification) avant de vérifier.
+    const existing = bets.getUserBets(req.session.userId).find((b) => b.matchId === matchId);
+    const refund = (existing && (existing.mode === 'qod' || existing.mode === 'joker')) ? (existing.stake || 0) : 0;
+    const available = availablePoints(req.session.userId, matchList) + refund;
+    if (stake > available) {
+      const max = Math.max(0, available);
+      return res.status(400).json({ error: 'Pas assez de points. Tu peux miser au maximum ' + max + ' pt' + (max > 1 ? 's' : '') + '.' });
+    }
+  }
+
+  bets.setBet(req.session.userId, matchId, home, away, mode, stake);
   res.json({ ok: true });
 });
 
@@ -101,11 +146,53 @@ app.get('/api/bets/me', requireAuth, async (req, res) => {
   const map = {};
   mine.forEach((b) => {
     const m = byId[b.matchId];
-    const pts = m ? bets.pointsFor(b.home, b.away, m.scoreHome, m.scoreAway) : null;
+    const pts = m ? bets.gamePointsFor(b, m) : null;
     if (pts != null) total += pts;
-    map[b.matchId] = { home: b.home, away: b.away, points: pts };
+    map[b.matchId] = { home: b.home, away: b.away, points: pts, mode: b.mode || 'normal', stake: b.stake || 0 };
   });
-  res.json({ bets: map, totalPoints: total });
+  res.json({
+    bets: map,
+    totalPoints: total,
+    available: availablePoints(req.session.userId, matchList)
+  });
+});
+
+// Tire un (ou tous les) pari(s) au hasard, pondéré(s) par le niveau (Elo/FIFA),
+// puis l'enregistre directement. Body : { matchId } pour un seul match,
+// ou rien pour TOUS les matchs à venir. Renvoie les scores tirés.
+app.post('/api/bets/random', requireAuth, async (req, res) => {
+  let matchList;
+  try { matchList = await football.getMatches(); }
+  catch (e) { return res.status(502).json({ error: 'Données des matchs indisponibles.' }); }
+
+  let targets;
+  if (req.body && req.body.matchId != null) {
+    const matchId = Number(req.body.matchId);
+    if (!Number.isInteger(matchId)) return res.status(400).json({ error: 'Match invalide.' });
+    const m = matchList.find((x) => x.id === matchId);
+    if (!m) return res.status(404).json({ error: 'Match introuvable.' });
+    if (!isBettable(m)) return res.status(400).json({ error: 'Trop tard : le match a commencé (ou équipes inconnues).' });
+    targets = [m];
+  } else {
+    // « Tout parier au hasard » : on ne touche PAS aux matchs où le joueur a
+    // déjà posé une mise (quitte ou double / joker), pour ne pas l'effacer.
+    const mineByMatch = {};
+    bets.getUserBets(req.session.userId).forEach((b) => { mineByMatch[b.matchId] = b; });
+    targets = matchList.filter((m) => {
+      if (!isBettable(m)) return false;
+      const b = mineByMatch[m.id];
+      if (b && (b.mode === 'qod' || b.mode === 'joker')) return false;
+      return true;
+    });
+  }
+
+  const results = targets.map((m) => {
+    const s = prono.randomScoreFor(m.home, m.away);
+    bets.setBet(req.session.userId, m.id, s.home, s.away);
+    return { matchId: m.id, home: s.home, away: s.away };
+  });
+
+  res.json({ ok: true, count: results.length, results });
 });
 
 // Calcule le classement de tous les joueurs (points, exacts, bons résultats)
@@ -114,24 +201,44 @@ function computeStandings(matchList) {
   (matchList || []).forEach((m) => { byId[m.id] = m; });
   const stat = {};
   users.listUsers().forEach((u) => {
-    stat[u.id] = { id: u.id, pseudo: u.pseudo, points: 0, exact: 0, correct: 0, scored: 0, placed: 0 };
+    stat[u.id] = { id: u.id, pseudo: u.pseudo, points: 0, exact: 0, correct: 0, scored: 0, placed: 0, breakdown: [] };
   });
   bets.allBets().forEach((b) => {
     const s = stat[b.userId];
     if (!s) return;
     s.placed++;
     const m = byId[b.matchId];
-    const pts = m ? bets.pointsFor(b.home, b.away, m.scoreHome, m.scoreAway) : null;
+    const pts = m ? bets.gamePointsFor(b, m) : null;
     if (pts != null) {
+      const mode = b.mode || 'normal';
       s.scored++;
       s.points += pts;
-      if (pts === 3) s.exact++;
-      else if (pts === 1) s.correct++;
+      // Compteurs « score exact » / « bon résultat » basés sur le prono (le joker n'en a pas).
+      if (mode !== 'joker') {
+        const base = bets.pointsFor(b.home, b.away, m.scoreHome, m.scoreAway);
+        if (base === 3) s.exact++;
+        else if (base === 1) s.correct++;
+      }
+      // Détail des matchs qui ont RAPPORTÉ des points (>0), pour le dépliage du palmarès
+      if (pts > 0) {
+        s.breakdown.push({
+          date: m.date,
+          home: m.home, away: m.away,
+          scoreHome: m.scoreHome, scoreAway: m.scoreAway,
+          predHome: b.home, predAway: b.away,
+          points: pts, mode: mode, stake: b.stake || 0
+        });
+      }
     }
   });
   const arr = Object.values(stat).sort((a, b) =>
     b.points - a.points || b.exact - a.exact || a.pseudo.localeCompare(b.pseudo));
-  arr.forEach((s, i) => { s.rank = i + 1; });
+  arr.forEach((s, i) => {
+    s.rank = i + 1;
+    // Matchs gagnants : score exact (3 pts) d'abord, puis par date
+    s.breakdown.sort((x, y) =>
+      y.points - x.points || new Date(x.date) - new Date(y.date));
+  });
   return arr;
 }
 
@@ -251,6 +358,7 @@ app.get('/api/leaderboard', async (req, res) => {
     return {
       rank: s.rank, pseudo: s.pseudo, points: s.points,
       exact: s.exact, correct: s.correct, placed: s.placed,
+      breakdown: s.breakdown,
       trend
     };
   });

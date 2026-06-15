@@ -47,6 +47,8 @@
       <p class="comp-sub">Prédis le score des matchs. <span class="tz-note">Bon résultat = 1 pt · Score exact = 3 pts · Horaires en heure française.</span></p>
       <div class="points-badge" id="points-badge" hidden>
         <span class="pb-num" id="pb-num">0</span><span class="pb-lab">points</span>
+        <span class="pb-sep">·</span>
+        <span class="pb-num pb-avail-num" id="pb-avail">0</span><span class="pb-lab">à miser</span>
       </div>
     </section>
 
@@ -61,10 +63,14 @@
 
     <div class="state" id="paris-state" hidden>Chargement…</div>
 
-    <!-- Onglets : à pronostiquer / paris passés -->
-    <div class="tabs paris-tabs" id="paris-tabs" hidden>
-      <button class="tab is-active" data-ptab="upcoming">À pronostiquer</button>
-      <button class="tab" data-ptab="done">Mes paris passés</button>
+    <!-- Barre d'outils : onglets + bouton « tout parier au hasard » -->
+    <div class="paris-toolbar" id="paris-toolbar" hidden>
+      <div class="tabs paris-tabs" id="paris-tabs">
+        <button class="tab is-active" data-ptab="upcoming">À pronostiquer</button>
+        <button class="tab" data-ptab="done">Mes paris passés</button>
+      </div>
+      <button class="btn btn-solid rand-all-btn" id="rand-all" type="button" hidden
+              title="Scores tirés selon le niveau des équipes · modifiables jusqu'au coup d'envoi">🎲 Tout parier au hasard</button>
     </div>
 
     <!-- À parier -->
@@ -82,7 +88,7 @@
 
   <footer class="foot">
     <span>Coupe à la maison · projet entre amis</span>
-    <span class="foot-v">v0.7 — paris</span>
+    <span class="foot-v">v0.8 — paris</span>
   </footer>
 
   <div class="toast" id="toast"></div>

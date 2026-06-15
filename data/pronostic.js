@@ -89,4 +89,48 @@ function pronoFor(home, away) {
   };
 }
 
-module.exports = { pronoFor };
+// ============================================================
+//  Tirage d'un score "au hasard mais réaliste"
+//  Le hasard est pondéré par la force des équipes :
+//   - Elo si les deux équipes en ont une note ;
+//   - sinon le rang FIFA (converti en force) ;
+//   - sinon une force neutre par défaut.
+//  Plus l'écart de niveau est grand, plus le favori peut marquer
+//  (jusqu'à 15 buts dans les cas extrêmes, comme dans la vraie vie).
+// ============================================================
+
+// Force de chaque équipe (Elo de préférence, sinon FIFA, sinon neutre).
+function ratingsFor(home, away) {
+  const eloH = eloFor(home), eloA = eloFor(away);
+  if (eloH != null && eloA != null) return { rH: eloH, rA: eloA };
+  const rkH = rankFor(home), rkA = rankFor(away);
+  const rH = (rkH != null) ? ratingFromRank(rkH) : 1700; // force neutre par défaut
+  const rA = (rkA != null) ? ratingFromRank(rkA) : 1700;
+  return { rH, rA };
+}
+
+// Tirage d'un nombre de buts suivant une loi de Poisson (méthode de Knuth).
+// "lambda" = nombre de buts attendu pour l'équipe.
+function poisson(lambda) {
+  const L = Math.exp(-lambda);
+  let k = 0, p = 1;
+  do { k++; p *= Math.random(); } while (p > L);
+  return k - 1;
+}
+
+// Tire un score aléatoire pondéré par le niveau. Renvoie { home, away }.
+function randomScoreFor(home, away) {
+  const { rH, rA } = ratingsFor(home, away);
+  const diff = rH - rA;
+  const E = 1 / (1 + Math.pow(10, -diff / 400));   // proba que "home" gagne
+  const mismatch = Math.abs(2 * E - 1);            // 0 = équilibré, 1 = écrasant
+
+  // Plus l'écart est grand, plus il y a de buts au total (le favori s'envole).
+  const total = 2.3 + 6.5 * Math.pow(mismatch, 1.5); // ~2,3 (serré) → ~8,8 (énorme)
+
+  const h = clamp(poisson(total * E),       0, 15);
+  const a = clamp(poisson(total * (1 - E)), 0, 15);
+  return { home: h, away: a };
+}
+
+module.exports = { pronoFor, randomScoreFor };
