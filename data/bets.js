@@ -1,6 +1,7 @@
 // ============================================================
 //  Coupe à la maison — paris (pronostics) & points
-//  Règle de base : bon résultat = 1 point, score exact = 3 points.
+//  Règle de base : score exact = 3 pts, bon vainqueur + bon écart de but = 2 pts,
+//                  bon résultat (vainqueur/nul) = 1 pt, sinon 0.
 //
 //  Trois modes de pari par match (un seul à la fois) :
 //   - 'normal' : la règle de base (1 ou 3 pts).
@@ -62,8 +63,11 @@ function pointsFor(predHome, predAway, scoreHome, scoreAway) {
   if (predHome === scoreHome && predAway === scoreAway) return 3; // score exact
   const predSign = Math.sign(predHome - predAway);
   const realSign = Math.sign(scoreHome - scoreAway);
-  if (predSign === realSign) return 1; // bon résultat (victoire/nul/défaite)
-  return 0;
+  if (predSign !== realSign) return 0; // mauvais vainqueur (ou nul prévu à tort)
+  // À partir d'ici : bon résultat.
+  // Bon écart de but → 2 pts. Vaut aussi pour le nul (écart 0 des deux côtés).
+  if ((predHome - predAway) === (scoreHome - scoreAway)) return 2;
+  return 1; // bon vainqueur mais mauvais écart
 }
 
 // Points d'un pari en tenant compte de son mode.
@@ -87,7 +91,8 @@ function gamePointsFor(bet, m) {
     const base = pointsFor(bet.home, bet.away, sh, sa); // 3 / 1 / 0 / null
     if (base == null) return null;
     if (base === 3) return 3 * stake;              // score exact → ×3
-    if (base === 1) return Math.ceil(1.5 * stake); // bon résultat → ×1,5 (arrondi sup.)
+    // Bon écart (2) ou bon résultat (1) → ×1,5 (quitte ou double inchangé)
+    if (base === 2 || base === 1) return Math.ceil(1.5 * stake);
     return -stake;                                 // perdu → on perd la mise
   }
 

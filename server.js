@@ -222,7 +222,7 @@ function computeStandings(matchList) {
       if (mode !== 'joker') {
         const base = bets.pointsFor(b.home, b.away, m.scoreHome, m.scoreAway);
         if (base === 3) s.exact++;
-        else if (base === 1) s.correct++;
+        else if (base >= 1) s.correct++; // bon résultat (inclut le bon écart à 2 pts)
       }
       // Détail des matchs qui ont RAPPORTÉ des points (>0), pour le dépliage du palmarès
       if (pts > 0) {
