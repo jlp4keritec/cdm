@@ -39,6 +39,7 @@ app.get('/palmares', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/tableau', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tableau.html')));
 app.get('/stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stats.html')));
 app.get('/tv', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tv.html')));
+app.get('/mondial', (req, res) => res.sendFile(path.join(__dirname, 'public', 'mondial.html')));
 
 // --- Données football ---
 app.get('/api/groups', async (req, res) => {
@@ -51,6 +52,10 @@ app.get('/api/matches', async (req, res) => {
 });
 app.get('/api/teams', async (req, res) => {
   try { res.json(await football.getTeams()); }
+  catch (err) { res.status(502).json({ error: err.message }); }
+});
+app.get('/api/scorers', async (req, res) => {
+  try { res.json(await football.getScorers()); }
   catch (err) { res.status(502).json({ error: err.message }); }
 });
 

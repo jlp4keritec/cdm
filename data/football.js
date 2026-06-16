@@ -15,7 +15,8 @@ const { pronoFor } = require('./pronostic');
 const TTL = 60 * 1000;
 const cache = {
   groups:  { at: 0, data: null },
-  matches: { at: 0, data: null }
+  matches: { at: 0, data: null },
+  scorers: { at: 0, data: null }
 };
 
 // Appel générique à l'API avec la clé secrète
@@ -179,4 +180,24 @@ async function getTeams() {
   return teams;
 }
 
-module.exports = { getGroups, getMatches, getTeams };
+// --- Les meilleurs buteurs (classement officiel de l'API) ---
+async function getScorers() {
+  if (cache.scorers.data && Date.now() - cache.scorers.at < TTL) {
+    return cache.scorers.data;
+  }
+  // limit=10 : on demande le Top 10 directement à l'API
+  const json = await callApi('/competitions/' + COMP + '/scorers?limit=10');
+  const scorers = (json.scorers || []).map((s, i) => ({
+    position: i + 1,
+    player: (s.player && s.player.name) || '—',
+    team: toFr((s.team && s.team.name)) || (s.team && s.team.name) || '—',
+    crest: (s.team && s.team.crest) || null,
+    goals: s.goals != null ? s.goals : 0,
+    penalties: s.penalties != null ? s.penalties : 0,
+    matches: s.playedMatches != null ? s.playedMatches : null
+  }));
+  cache.scorers = { at: Date.now(), data: scorers };
+  return scorers;
+}
+
+module.exports = { getGroups, getMatches, getTeams, getScorers };

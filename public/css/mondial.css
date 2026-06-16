@@ -1,0 +1,48 @@
+/* ============================================================
+   Coupe à la maison — page « Mondial » (stats du tournoi)
+   Réutilise au maximum competition.css (.standings, .subtabs,
+   .match-view, .match-row…). Ici, juste les touches en plus.
+   ============================================================ */
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px 18px;
+  max-width: 640px;
+}
+
+.stat-table { font-size: 0.95rem; }
+.stat-table td { padding: 11px 6px; }
+
+/* Colonne du rang : place pour les médailles */
+.rank-cell { width: 42px; font-size: 1.25rem; text-align: left; }
+
+.player-name { font-weight: 800; }
+
+/* Le grand chiffre (buts) bien lisible */
+.goals {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.25rem;
+  color: var(--lime);
+}
+
+/* Onglet « Matchs fous » */
+.total-badge {
+  color: var(--lime);
+  background: rgba(198,255,61,0.12);
+  border-color: rgba(198,255,61,0.30);
+}
+.m-sub {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 560px) {
+  .stat-card { padding: 10px 12px; }
+  .stat-table { font-size: 0.85rem; }
+  .goals { font-size: 1.05rem; }
+}
