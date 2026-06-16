@@ -224,8 +224,8 @@ function computeStandings(matchList) {
         if (base === 3) s.exact++;
         else if (base >= 1) s.correct++; // bon résultat (inclut le bon écart à 2 pts)
       }
-      // Détail des matchs qui ont RAPPORTÉ des points (>0), pour le dépliage du palmarès
-      if (pts > 0) {
+      // Détail des matchs qui changent le total (gain >0 ou perte <0), pour le dépliage du palmarès
+      if (pts !== 0) {
         s.breakdown.push({
           date: m.date,
           home: m.home, away: m.away,
@@ -240,7 +240,7 @@ function computeStandings(matchList) {
     b.points - a.points || b.exact - a.exact || a.pseudo.localeCompare(b.pseudo));
   arr.forEach((s, i) => {
     s.rank = i + 1;
-    // Matchs gagnants : score exact (3 pts) d'abord, puis par date
+    // Gains d'abord (du + grand au + petit), pertes ensuite, puis par date
     s.breakdown.sort((x, y) =>
       y.points - x.points || new Date(x.date) - new Date(y.date));
   });

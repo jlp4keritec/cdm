@@ -340,6 +340,19 @@ tr.qualified .pos { background: rgba(198,255,61,0.18); color: var(--lime); }
 }
 .bd-exact { color: #0e1530; background: var(--lime, #c6ff3d); }
 .bd-good  { color: var(--cyan); border: 1px solid var(--line); }
+.bd-game  { color: #0e1530; background: #7cd6ff; }
+.bd-loss  { color: #fff; background: #ff4d6d; }
+.bd-row.is-loss .bd-teams strong { opacity: 0.85; }
+.bd-mode {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  vertical-align: middle;
+}
 
 @media (max-width: 560px) {
   .bd-row { grid-template-columns: 1fr auto; row-gap: 2px; }

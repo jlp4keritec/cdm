@@ -17,14 +17,33 @@ function shortDate(iso){
 function detailHtml(breakdown){
   if (!Array.isArray(breakdown) || breakdown.length === 0) return '';
   const items = breakdown.map((b) => {
-    let badge;
-    if (b.points === 3)      badge = '<span class="bd-pts bd-exact">🎯 3 pts</span>';
-    else if (b.points === 2) badge = '<span class="bd-pts bd-good">🎯 2 pts</span>';
-    else                     badge = '<span class="bd-pts bd-good">✓ 1 pt</span>';
-    return '<div class="bd-row">' +
+    const mode = b.mode || 'normal';
+    const p = b.points;
+    let badge, tag = '';
+
+    if (p < 0) {
+      // Pari misé perdu → ligne rouge
+      badge = '<span class="bd-pts bd-loss">' + p + ' pts</span>';
+    } else if (mode === 'qod') {
+      badge = '<span class="bd-pts bd-game">🎲 +' + p + ' pts</span>';
+    } else if (mode === 'joker') {
+      badge = '<span class="bd-pts bd-game">🃏 +' + p + (p > 1 ? ' pts' : ' pt') + '</span>';
+    } else if (p === 3) {
+      badge = '<span class="bd-pts bd-exact">🎯 3 pts</span>';
+    } else if (p === 2) {
+      badge = '<span class="bd-pts bd-good">🎯 2 pts</span>';
+    } else {
+      badge = '<span class="bd-pts bd-good">✓ 1 pt</span>';
+    }
+
+    if (mode === 'qod')   tag = '<span class="bd-mode">🎲 Quitte ou double · mise ' + (b.stake || 0) + '</span>';
+    if (mode === 'joker') tag = '<span class="bd-mode">🃏 Joker</span>';
+
+    return '<div class="bd-row' + (p < 0 ? ' is-loss' : '') + '">' +
       '<span class="bd-date">' + esc(shortDate(b.date)) + '</span>' +
       '<span class="bd-teams">' + esc(b.home) +
         ' <strong>' + b.scoreHome + ' – ' + b.scoreAway + '</strong> ' + esc(b.away) +
+        tag +
       '</span>' +
       '<span class="bd-prono">ton prono : ' + b.predHome + ' – ' + b.predAway + '</span>' +
       badge +
