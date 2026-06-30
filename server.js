@@ -201,7 +201,8 @@ app.post('/api/bets/random', requireAuth, async (req, res) => {
 });
 
 // Calcule le classement de tous les joueurs (points, exacts, bons résultats)
-function computeStandings(matchList) {
+function computeStandings(matchList, opts = {}) {
+  const classic = !!(opts && opts.classic); // true = paris de base seuls (sans les mises)
   const byId = {};
   (matchList || []).forEach((m) => { byId[m.id] = m; });
   const stat = {};
@@ -213,7 +214,10 @@ function computeStandings(matchList) {
     if (!s) return;
     s.placed++;
     const m = byId[b.matchId];
-    const pts = m ? bets.gamePointsFor(b, m) : null;
+    // Classique : points de base seuls (3/2/1/0). Avec mises : gains/pertes des modes spéciaux.
+    const pts = m
+      ? (classic ? bets.pointsFor(b.home, b.away, m.scoreHome, m.scoreAway) : bets.gamePointsFor(b, m))
+      : null;
     if (pts != null) {
       const mode = b.mode || 'normal';
       s.scored++;
@@ -268,7 +272,14 @@ app.get('/api/stats', async (req, res) => {
     if (usersById[b.userId] == null) return;            // joueur supprimé : on ignore
     const p = players[b.userId] || (players[b.userId] = {
       pseudo: usersById[b.userId], placed: 0, scored: 0,
-      exact: 0, correct: 0, goals: 0, favScores: {}
+      exact: 0, correct: 0, goals: 0, favScores: {},
+      // Modes spéciaux (Quitte ou double / Joker)
+      spStake: 0,    // total des points misés
+      spCount: 0,    // nb de paris en mode spécial
+      spBigWin: 0,   // plus grosse victoire sur un seul pari
+      spLost: 0,     // total des points perdus
+      spNet: 0,      // bilan net (gains - pertes), paris joués
+      spPlayed: 0    // nb de paris spéciaux déjà joués
     });
     p.placed++;
     p.goals += (b.home + b.away);
@@ -285,6 +296,22 @@ app.get('/api/stats', async (req, res) => {
       p.scored++;
       if (pts === 3) p.exact++;
       else if (pts === 1) p.correct++;
+    }
+
+    // Modes spéciaux : Quitte ou double & Joker
+    const mode = b.mode || 'normal';
+    if (mode === 'qod' || mode === 'joker') {
+      p.spCount++;
+      p.spStake += (b.stake || 0);
+      if (m) {
+        const net = bets.gamePointsFor(b, m);  // null tant que le match n'est pas joué
+        if (net != null) {
+          p.spPlayed++;
+          p.spNet += net;
+          if (net > p.spBigWin) p.spBigWin = net;
+          if (net < 0) p.spLost += -net;
+        }
+      }
     }
   });
 
@@ -320,7 +347,13 @@ app.get('/api/stats', async (req, res) => {
     voyant:  leader((p) => p.scored ? p.correct + p.exact : null, 1), // + de bons paris
     flambeur: leader((p) => p.placed ? round1(p.goals / p.placed) : null), // + de buts/pari
     prudent:  loserLow((p) => p.placed ? round1(p.goals / p.placed) : null), // - de buts/pari
-    assidu:   leader((p) => p.placed)                                 // + de paris
+    assidu:   leader((p) => p.placed),                                // + de paris
+    // Modes spéciaux
+    casino:   leader((p) => p.spStake > 0 ? p.spStake : null),        // + gros total misé
+    groscoup: leader((p) => p.spBigWin > 0 ? p.spBigWin : null),      // + grosse victoire (1 pari)
+    joueur:   leader((p) => p.spCount > 0 ? p.spCount : null),        // + de paris spéciaux
+    crame:    leader((p) => p.spLost > 0 ? p.spLost : null),          // + de points perdus
+    rentable: leader((p) => p.spPlayed > 0 ? p.spNet : null)          // meilleur bilan net
   };
 
   // Score le plus pronostiqué (tous joueurs confondus)
@@ -340,19 +373,22 @@ app.get('/api/stats', async (req, res) => {
 
 // Palmarès (public) : classement de tous les parieurs
 app.get('/api/leaderboard', async (req, res) => {
+  const classic = req.query.classic === '1' || req.query.classic === 'true';
   let ml = [];
   try { ml = await football.getMatches(); } catch (e) {}
-  const full = computeStandings(ml);
+  const full = computeStandings(ml, { classic });
 
   // Photo du classement pour les flèches d'évolution.
-  // prevRanks = rangs lors du dernier changement de classement.
+  // Les flèches ne suivent que le classement « Avec mises » : on n'historise pas le classique.
   let prevRanks = null;
-  try { prevRanks = history.updateAndGetPrevious(full); } catch (e) {}
+  if (!classic) {
+    try { prevRanks = history.updateAndGetPrevious(full); } catch (e) {}
+  }
 
   const standings = full.map((s) => {
     let trend = 'same';            // par défaut : stable
-    if (!prevRanks) {
-      trend = 'none';              // pas encore d'historique
+    if (classic || !prevRanks) {
+      trend = 'none';              // classique : pas de flèches / pas encore d'historique
     } else if (prevRanks[s.pseudo] == null) {
       trend = 'new';               // nouveau venu au classement
     } else if (prevRanks[s.pseudo] > s.rank) {
