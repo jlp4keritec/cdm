@@ -1,6 +1,6 @@
 {
   "name": "coupe-a-la-maison",
-  "version": "0.7.3",
+  "version": "0.9.3",
   "description": "Site de paris entre amis pour la Coupe du Monde 2026",
   "main": "server.js",
   "scripts": {

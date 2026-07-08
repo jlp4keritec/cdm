@@ -39,14 +39,27 @@
     <section class="comp-head">
       <p class="hero-kicker">Classement général</p>
       <h1 class="comp-title">Palmarès</h1>
-      <p class="comp-sub">Les meilleurs parieurs de la maison. Bon résultat = 1 pt · Score exact = 3 pts.</p>
+      <p class="comp-sub">Les meilleurs parieurs de la maison. Bon résultat = 1 pt · Bon écart = 2 pts · Score exact = 3 pts.</p>
+      <div class="tabs" role="tablist">
+        <button class="tab is-active" data-tab="classique" role="tab">🏆 Classique</button>
+        <button class="tab" data-tab="mises" role="tab">🎲 Avec mises</button>
+      </div>
     </section>
 
-    <div id="lb-state" class="state">Chargement du classement…</div>
-    <div id="leaderboard"></div>
+    <section class="tab-panel is-active" data-panel="classique">
+      <p class="comp-sub" style="margin-top:6px">Uniquement les paris de base. Les modes Quitte ou double et Joker ne comptent pas.</p>
+      <div id="lb-state-classique" class="state">Chargement du classement…</div>
+      <div id="leaderboard-classique"></div>
+    </section>
+
+    <section class="tab-panel" data-panel="mises">
+      <p class="comp-sub" style="margin-top:6px">Avec les gains et pertes des mises (🎲 Quitte ou double, 🃏 Joker).</p>
+      <div id="lb-state-mises" class="state">Chargement du classement…</div>
+      <div id="leaderboard-mises"></div>
+    </section>
   </main>
 
-  <footer class="foot"><span>Coupe à la maison · projet entre amis</span><span class="foot-v">v0.7 — palmarès</span></footer>
+  <footer class="foot"><span>Coupe à la maison · projet entre amis</span><span class="foot-v">v0.9 — deux palmarès</span></footer>
 
   <script src="/js/theme.js"></script>
   <script src="/js/palmares.js"></script>

@@ -10,7 +10,12 @@ const TITLES = [
   { key:'voyant',   ico:'🔮', name:'Le voyant',         desc:'le plus de bons paris',             unit:'bons paris' },
   { key:'flambeur', ico:'🎲', name:'Le flambeur',       desc:'parie le plus de buts en moyenne',  unit:'buts/pari' },
   { key:'prudent',  ico:'🛡️', name:'Le prudent',        desc:'parie les plus petits scores',      unit:'buts/pari' },
-  { key:'assidu',   ico:'✍️', name:'Le plus assidu',    desc:'le plus de paris placés',           unit:'paris' }
+  { key:'assidu',   ico:'✍️', name:'Le plus assidu',    desc:'le plus de paris placés',           unit:'paris' },
+  { key:'casino',   ico:'🔥', name:'Le casino',         desc:'mise le plus de points',            unit:'pts misés' },
+  { key:'groscoup', ico:'💰', name:'Le gros coup',      desc:'la plus grosse victoire sur un pari', unit:'pts' },
+  { key:'joueur',   ico:'🃏', name:'Le joueur',         desc:'le plus de paris en mode spécial',  unit:'spéciaux' },
+  { key:'crame',    ico:'📉', name:'Le cramé',          desc:'le plus de points perdus',          unit:'pts perdus' },
+  { key:'rentable', ico:'🧨', name:'Le rentable',       desc:'meilleur bilan sur les modes spéciaux', unit:'pts' }
 ];
 
 async function load(){

@@ -1,7 +1,10 @@
 // ============================================================
 //  Coupe à la maison — page Palmarès (classement)
+//  Deux onglets :
+//   - Classique : uniquement les paris de base (sans les mises).
+//   - Avec mises : inclut Quitte ou double 🎲 et Joker 🃏.
 //  Clique sur un parieur pour déplier les matchs qui lui ont
-//  rapporté des points.
+//  rapporté (ou coûté) des points.
 // ============================================================
 
 function esc(s){ return String(s).replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -13,7 +16,7 @@ function shortDate(iso){
   } catch (e) { return ''; }
 }
 
-// Bloc détail : la liste des matchs gagnants d'un joueur
+// Bloc détail : la liste des matchs gagnants (ou perdants) d'un joueur
 function detailHtml(breakdown){
   if (!Array.isArray(breakdown) || breakdown.length === 0) return '';
   const items = breakdown.map((b) => {
@@ -22,7 +25,6 @@ function detailHtml(breakdown){
     let badge, tag = '';
 
     if (p < 0) {
-      // Pari misé perdu → ligne rouge
       badge = '<span class="bd-pts bd-loss">' + p + ' pts</span>';
     } else if (mode === 'qod') {
       badge = '<span class="bd-pts bd-game">🎲 +' + p + ' pts</span>';
@@ -52,20 +54,16 @@ function detailHtml(breakdown){
   return '<div class="rank-detail" hidden>' + items + '</div>';
 }
 
-async function load(){
-  const state = document.getElementById('lb-state');
-  const wrap = document.getElementById('leaderboard');
-  let data;
-  try { data = await (await fetch('/api/leaderboard')).json(); }
-  catch (e) { state.className='state error'; state.textContent='Impossible de charger le classement.'; return; }
+function trendHtml(t){
+  if (t === 'up')   return '<span class="trend up" title="En hausse">▲</span>';
+  if (t === 'down') return '<span class="trend down" title="En baisse">▼</span>';
+  if (t === 'new')  return '<span class="trend new" title="Nouveau">NEW</span>';
+  if (t === 'same') return '<span class="trend same" title="Stable">–</span>';
+  return '';  // 'none' : pas de flèche
+}
 
-  if (!Array.isArray(data) || data.length === 0){
-    state.className='state';
-    state.textContent="Aucun parieur pour l'instant. Crée un compte et fais tes pronos !";
-    return;
-  }
-  state.style.display='none';
-
+// Construit le HTML d'un classement complet à partir des données
+function tableHtml(data){
   const head = '<div class="rank-head lb-grid">' +
     '<span class="rank-pos">#</span>' +
     '<span class="rank-name">Parieur</span>' +
@@ -73,14 +71,6 @@ async function load(){
     '<span class="lb-col">Exacts</span>' +
     '<span class="lb-col lb-pts">Points</span>' +
   '</div>';
-
-  function trendHtml(t){
-    if (t === 'up')   return '<span class="trend up" title="En hausse">▲</span>';
-    if (t === 'down') return '<span class="trend down" title="En baisse">▼</span>';
-    if (t === 'new')  return '<span class="trend new" title="Nouveau">NEW</span>';
-    if (t === 'same') return '<span class="trend same" title="Stable">–</span>';
-    return '';  // 'none' : pas encore d'historique
-  }
 
   const rows = data.map((s) => {
     const top = s.rank <= 3 ? ' top' + s.rank : '';
@@ -105,29 +95,59 @@ async function load(){
     return '<div class="rank-block">' + row + detailHtml(s.breakdown) + '</div>';
   }).join('');
 
-  wrap.innerHTML = head + rows;
-
-  // Clic / clavier : déplier-replier le détail d'un parieur
-  function toggle(rowEl){
-    const block = rowEl.closest('.rank-block');
-    if (!block) return;
-    const detail = block.querySelector('.rank-detail');
-    if (!detail) return;
-    const open = !detail.hasAttribute('hidden');
-    if (open) { detail.setAttribute('hidden', ''); rowEl.setAttribute('aria-expanded', 'false'); }
-    else      { detail.removeAttribute('hidden');  rowEl.setAttribute('aria-expanded', 'true');  }
-    rowEl.classList.toggle('is-open', !open);
-  }
-
-  wrap.addEventListener('click', (e) => {
-    const row = e.target.closest('.rank-row.is-clickable');
-    if (row) toggle(row);
-  });
-  wrap.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    const row = e.target.closest('.rank-row.is-clickable');
-    if (row) { e.preventDefault(); toggle(row); }
-  });
+  return head + rows;
 }
 
-load();
+// Charge un classement (classique ou avec mises) dans son conteneur
+async function loadBoard(key, url){
+  const state = document.getElementById('lb-state-' + key);
+  const wrap = document.getElementById('leaderboard-' + key);
+  let data;
+  try { data = await (await fetch(url)).json(); }
+  catch (e) { state.className='state error'; state.textContent='Impossible de charger le classement.'; return; }
+
+  if (!Array.isArray(data) || data.length === 0){
+    state.className='state';
+    state.textContent="Aucun parieur pour l'instant. Crée un compte et fais tes pronos !";
+    return;
+  }
+  state.style.display='none';
+  wrap.innerHTML = tableHtml(data);
+}
+
+// Déplier / replier le détail d'un parieur
+function toggle(rowEl){
+  const block = rowEl.closest('.rank-block');
+  if (!block) return;
+  const detail = block.querySelector('.rank-detail');
+  if (!detail) return;
+  const open = !detail.hasAttribute('hidden');
+  if (open) { detail.setAttribute('hidden', ''); rowEl.setAttribute('aria-expanded', 'false'); }
+  else      { detail.removeAttribute('hidden');  rowEl.setAttribute('aria-expanded', 'true');  }
+  rowEl.classList.toggle('is-open', !open);
+}
+
+// Délégation clic/clavier pour tous les classements
+document.addEventListener('click', (e) => {
+  const row = e.target.closest('.rank-row.is-clickable');
+  if (row) toggle(row);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const row = e.target.closest('.rank-row.is-clickable');
+  if (row) { e.preventDefault(); toggle(row); }
+});
+
+// Onglets Classique / Avec mises
+document.querySelectorAll('.tab[data-tab]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const name = btn.getAttribute('data-tab');
+    document.querySelectorAll('.tab[data-tab]').forEach((b) => b.classList.toggle('is-active', b === btn));
+    document.querySelectorAll('.tab-panel[data-panel]').forEach((p) =>
+      p.classList.toggle('is-active', p.getAttribute('data-panel') === name));
+  });
+});
+
+// Chargement des deux classements
+loadBoard('classique', '/api/leaderboard?classic=1');
+loadBoard('mises', '/api/leaderboard');

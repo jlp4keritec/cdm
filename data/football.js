@@ -36,6 +36,32 @@ async function callApi(pathname) {
   return res.json();
 }
 
+// --- Score « foot » d'un match, HORS séance de tirs au but ---
+// football-data.org met les tirs au but DANS score.fullTime :
+//   ex. 0-0 après prolongation puis 4-3 t.a.b.  =>  fullTime = 4-3
+// Pour nos paris on veut le score au coup de sifflet final,
+// c.-à-d. temps réglementaire + prolongation, SANS les tirs au but.
+function realScore(score) {
+  const empty = { home: null, away: null, pensHome: null, pensAway: null };
+  if (!score) return empty;
+  // Les sous-nœuds utilisent .home/.away (fallback .homeTeam/.awayTeam par sécurité)
+  const gH = (n) => (!n ? null : (n.home != null ? n.home : (n.homeTeam != null ? n.homeTeam : null)));
+  const gA = (n) => (!n ? null : (n.away != null ? n.away : (n.awayTeam != null ? n.awayTeam : null)));
+
+  if (score.duration === 'PENALTY_SHOOTOUT') {
+    const rH = gH(score.regularTime), rA = gA(score.regularTime);
+    const eH = gH(score.extraTime),   eA = gA(score.extraTime);
+    return {
+      home: (rH || 0) + (eH || 0),
+      away: (rA || 0) + (eA || 0),
+      pensHome: gH(score.penalties),
+      pensAway: gA(score.penalties)
+    };
+  }
+  // Cas normal (90 min, ou prolongation sans tirs au but)
+  return { home: gH(score.fullTime), away: gA(score.fullTime), pensHome: null, pensAway: null };
+}
+
 // --- Les matchs (tous les tours) ---
 async function getMatches() {
   if (cache.matches.data && Date.now() - cache.matches.at < TTL) {
@@ -45,6 +71,7 @@ async function getMatches() {
   const matches = (json.matches || []).map((m) => {
     const home = toFr((m.homeTeam && m.homeTeam.name)) || 'À déterminer';
     const away = toFr((m.awayTeam && m.awayTeam.name)) || 'À déterminer';
+    const rs = realScore(m.score);
     return {
       id: m.id,
       date: m.utcDate,
@@ -55,8 +82,10 @@ async function getMatches() {
       homeCrest: (m.homeTeam && m.homeTeam.crest) || null,
       away: away,
       awayCrest: (m.awayTeam && m.awayTeam.crest) || null,
-      scoreHome: m.score && m.score.fullTime ? m.score.fullTime.home : null,
-      scoreAway: m.score && m.score.fullTime ? m.score.fullTime.away : null,
+      scoreHome: rs.home,                     // score foot (hors t.a.b.)
+      scoreAway: rs.away,
+      pensHome: rs.pensHome,                  // score des tirs au but (null si pas de t.a.b.)
+      pensAway: rs.pensAway,
       winner: m.score ? m.score.winner : null,
       venue: m.venue || null,                 // lieu fourni par l'API (souvent le stade)
       prono: pronoFor(home, away)             // pronostic Kikko (peut être null)

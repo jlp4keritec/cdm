@@ -198,6 +198,8 @@ function renderDoneRow(m){
   const finished = m.status==='FINISHED';
   const realScore = hasScore ? (m.scoreHome+' - '+m.scoreAway) : '… - …';
   const scoreLab = finished ? 'Score final' : 'En cours';
+  const hasPens = m.pensHome!=null && m.pensAway!=null;
+  const pensTxt = hasPens ? ('t.a.b. '+m.pensHome+' - '+m.pensAway) : '';
   const live = m.status==='IN_PLAY' || m.status==='PAUSED';
 
   let myProno = '<span class="dp-none">Pas de pari</span>';
@@ -233,7 +235,7 @@ function renderDoneRow(m){
     '<div class="m-meta"><span class="m-time">'+fmtDateTime(m.date)+'</span>'+(badge?'<span class="m-badge">'+esc(badge)+'</span>':'')+(live?'<span class="m-live">EN DIRECT</span>':'')+'</div>' +
     '<div class="m-body">' +
       '<div class="m-team home"'+teamAttr(m.home)+'>'+crest(m.homeCrest)+'<span>'+esc(m.home)+'</span></div>' +
-      '<div class="m-center"><span class="m-score-lab">'+scoreLab+'</span><span class="m-score">'+realScore+'</span></div>' +
+      '<div class="m-center"><span class="m-score-lab">'+scoreLab+'</span><span class="m-score">'+realScore+'</span>'+(hasPens?'<span class="m-pens">'+pensTxt+'</span>':'')+'</div>' +
       '<div class="m-team away"'+teamAttr(m.away)+'><span>'+esc(m.away)+'</span>'+crest(m.awayCrest)+'</div>' +
     '</div>' +
     '<div class="done-foot">'+myProno+' '+ptsBadge+resumeLink+'</div>' +
